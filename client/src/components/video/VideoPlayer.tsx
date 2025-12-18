@@ -73,6 +73,7 @@ export function VideoPlayer({
   const [audioTrack, setAudioTrack] = useState("Default");
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
   const [showMetadataExpanded, setShowMetadataExpanded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const hlsRef = useRef<HLS | null>(null);
   const [availableQualities, setAvailableQualities] = useState<string[]>(QUALITY_OPTIONS);
   const [availableAudioTracks, setAvailableAudioTracks] = useState<string[]>(["Default"]);
@@ -158,6 +159,20 @@ export function VideoPlayer({
       tracks[i].mode = subtitlesEnabled ? "showing" : "hidden";
     }
   }, [subtitlesEnabled]);
+
+  // Handle mouse up for drag end
+  useEffect(() => {
+    const handleMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+      }
+    };
+
+    if (isDragging) {
+      window.addEventListener("mouseup", handleMouseUp);
+      return () => window.removeEventListener("mouseup", handleMouseUp);
+    }
+  }, [isDragging]);
 
   // Auto-hide controls (but not metadata bar)
   const resetControlsTimeout = useCallback(() => {
@@ -307,11 +322,24 @@ export function VideoPlayer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen, onBack, subtitlesEnabled, togglePlayPause, toggleMute, adjustVolume, skip, toggleFullscreen]);
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const seekTo = useCallback((clientX: number) => {
     if (!progressRef.current || !videoRef.current) return;
     const rect = progressRef.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
+    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     videoRef.current.currentTime = percent * duration;
+    setCurrentTime(percent * duration);
+  }, [duration]);
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) {
+      seekTo(e.clientX);
+      resetControlsTimeout();
+    }
+  };
+
+  const handleProgressMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    seekTo(e.clientX);
   };
 
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -326,6 +354,11 @@ export function VideoPlayer({
     // Generate preview frame
     if (duration > 0) {
       generatePreviewFrame(time);
+    }
+
+    // Update position while dragging
+    if (isDragging) {
+      seekTo(e.clientX);
     }
   };
 
@@ -645,10 +678,11 @@ export function VideoPlayer({
           <div className="absolute bottom-20 left-0 right-0 px-4">
             <div
               ref={progressRef}
-              onClick={(e) => { e.stopPropagation(); handleProgressClick(e); resetControlsTimeout(); }}
+              onClick={(e) => { e.stopPropagation(); handleProgressClick(e); }}
+              onMouseDown={(e) => { e.stopPropagation(); handleProgressMouseDown(e); }}
               onMouseMove={(e) => { handleProgressMouseMove(e); resetControlsTimeout(); }}
-              onMouseLeave={() => { setShowThumbnail(false); setPreviewFrame(null); }}
-              className="relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all"
+              onMouseLeave={() => { if (!isDragging) { setShowThumbnail(false); setPreviewFrame(null); } }}
+              className={cn("relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all", isDragging && "h-2.5")}
             >
               <div
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all"
