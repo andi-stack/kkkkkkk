@@ -237,6 +237,7 @@ export default function Settings() {
                       <button
                         onClick={() => setSettings({...settings, appBackgroundImage: ''})}
                         className="p-2 rounded hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground"
+                        data-testid="button-clear-background-image"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -281,6 +282,7 @@ export default function Settings() {
                       <button
                         onClick={() => setSettings({...settings, appBackgroundVideo: ''})}
                         className="p-2 rounded hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground"
+                        data-testid="button-clear-background-video"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -288,6 +290,19 @@ export default function Settings() {
                   )}
                 </div>
               </div>
+
+              {(settings.appBackgroundImage || settings.appBackgroundVideo) && (
+                <Button
+                  onClick={() => {
+                    setSettings({...settings, appBackgroundImage: '', appBackgroundVideo: '', appBackground: 'dark'});
+                  }}
+                  variant="destructive"
+                  className="w-full"
+                  data-testid="button-clear-all-backgrounds"
+                >
+                  Clear All Backgrounds
+                </Button>
+              )}
             </div>
           </div>
         );
