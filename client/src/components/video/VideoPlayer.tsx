@@ -57,6 +57,7 @@ export function VideoPlayer({
   const progressRef = useRef<HTMLDivElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isDraggingRef = useRef(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -251,6 +252,38 @@ export function VideoPlayer({
     }
   }, []);
 
+  // Handle seek bar drag and drop
+  useEffect(() => {
+    const seekTo = (clientX: number) => {
+      if (!progressRef.current || !videoRef.current) return;
+      const rect = progressRef.current.getBoundingClientRect();
+      const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const newTime = percent * duration;
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      seekTo(e.clientX);
+    };
+
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    if (isDraggingRef.current) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [duration]);
+
   // Keyboard shortcuts - must come after callback definitions
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -316,29 +349,12 @@ export function VideoPlayer({
 
   const handleProgressMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressRef.current || !videoRef.current) return;
-    e.preventDefault();
-    const seekTo = (clientX: number) => {
-      if (!progressRef.current || !videoRef.current) return;
-      const rect = progressRef.current.getBoundingClientRect();
-      const percent = (clientX - rect.left) / rect.width;
-      const newTime = Math.max(0, Math.min(duration, percent * duration));
-      videoRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    };
+    isDraggingRef.current = true;
     
-    seekTo(e.clientX);
-    
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      seekTo(moveEvent.clientX);
-    };
-    
-    const handleMouseUp = () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-    
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    if (!progressRef.current || !videoRef.current) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    videoRef.current.currentTime = Math.max(0, Math.min(duration, percent * duration));
   };
 
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
