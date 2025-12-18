@@ -36,15 +36,17 @@ export default function LocalVideoPlayer() {
       file.type.startsWith("video/")
     );
 
-    const newVideos: LocalVideo[] = videoFiles.map((file) => ({
-      id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: file.name,
-      url: URL.createObjectURL(file),
-      size: formatFileSize(file.size),
-      type: file.type,
-    }));
+    requestAnimationFrame(() => {
+      const newVideos: LocalVideo[] = videoFiles.map((file) => ({
+        id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: file.name,
+        url: URL.createObjectURL(file),
+        size: formatFileSize(file.size),
+        type: file.type,
+      }));
 
-    setLocalVideos((prev) => [...prev, ...newVideos]);
+      setLocalVideos((prev) => [...prev, ...newVideos]);
+    });
   };
 
   const handleDrop = (e: React.DragEvent) => {

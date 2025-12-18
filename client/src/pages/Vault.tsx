@@ -90,48 +90,56 @@ export default function Vault() {
   const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;
 
-    for (const file of Array.from(files)) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const dataUrl = e.target?.result as string;
-        const newFile: StoredVaultFile = {
-          id: `vault-upload-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          type: "file",
-          size: formatFileSize(file.size),
-          date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-          dataUrl,
-        };
-
-        try {
-          const response = await fetch("/api/vault/files", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: file.name,
-              type: "file",
-              size: formatFileSize(file.size),
-              mimeType: file.type,
-              dataUrl,
-            }),
-          });
-
-          if (response.ok) {
-            toast({
-              title: "File Added",
-              description: `${file.name} has been securely stored`,
+    const uploadFile = (file: File): Promise<void> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const dataUrl = e.target?.result as string;
+          try {
+            const response = await fetch("/api/vault/files", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: file.name,
+                type: "file",
+                size: formatFileSize(file.size),
+                mimeType: file.type,
+                dataUrl,
+              }),
             });
-            fetchVaultFiles();
+
+            if (response.ok) {
+              toast({
+                title: "File Added",
+                description: `${file.name} has been securely stored`,
+              });
+              fetchVaultFiles();
+            }
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: `Failed to store ${file.name}`,
+              variant: "destructive",
+            });
+          } finally {
+            resolve();
           }
-        } catch (error) {
+        };
+        reader.onerror = () => {
           toast({
             title: "Error",
-            description: `Failed to store ${file.name}`,
+            description: `Failed to read ${file.name}`,
             variant: "destructive",
           });
-        }
-      };
-      reader.readAsDataURL(file);
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    const fileArray = Array.from(files);
+    for (const file of fileArray) {
+      await uploadFile(file);
     }
   };
 

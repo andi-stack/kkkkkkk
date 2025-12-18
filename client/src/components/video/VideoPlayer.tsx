@@ -169,7 +169,7 @@ export function VideoPlayer({
       controlsTimeoutRef.current = setTimeout(() => {
         setShowControls(false);
         setShowSettings(null);
-      }, 3000);
+      }, 4000);
     }
   }, [isPlaying]);
 
@@ -566,8 +566,10 @@ export function VideoPlayer({
         onClick={(e) => {
           if (e.target === e.currentTarget || (e.target as HTMLElement).tagName === "VIDEO") {
             togglePlayPause();
+            resetControlsTimeout();
           }
         }}
+        onMouseMove={resetControlsTimeout}
       >
         {/* Video Element */}
         <video
@@ -643,8 +645,8 @@ export function VideoPlayer({
           <div className="absolute bottom-20 left-0 right-0 px-4">
             <div
               ref={progressRef}
-              onClick={(e) => { e.stopPropagation(); handleProgressClick(e); }}
-              onMouseMove={handleProgressMouseMove}
+              onClick={(e) => { e.stopPropagation(); handleProgressClick(e); resetControlsTimeout(); }}
+              onMouseMove={(e) => { handleProgressMouseMove(e); resetControlsTimeout(); }}
               onMouseLeave={() => { setShowThumbnail(false); setPreviewFrame(null); }}
               className="relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all"
             >
