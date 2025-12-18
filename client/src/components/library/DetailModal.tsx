@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MediaItem } from "@/lib/mockData";
-import { Play, Download, Trash2, File, Clock, HardDrive, Hash, ChevronRight, Tag, Folder, X, Edit2, RotateCcw, FolderOpen, Users, Film, Image as ImageIcon, Upload } from "lucide-react";
+import { Play, Download, Trash2, File, Clock, HardDrive, Hash, ChevronRight, Tag, Folder, X, Settings, Edit2, RotateCcw, FolderOpen, Users, Film, Image as ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -383,7 +383,7 @@ export function DetailModal({ item, isOpen, onClose }: DetailModalProps) {
             {/* Edit & Browse Files Actions */}
             <div className="px-6 py-4 border-b border-border/30 space-y-2">
               <Button variant="outline" className="w-full gap-2 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-600/10 border-cyan-500/30 h-9 justify-start transition-all duration-300 hover:scale-105 transform">
-                <Edit2 className="w-4 h-4" />
+                <Settings className="w-4 h-4" />
                 Edit Metadata
               </Button>
               <Popover open={isFilesOpen} onOpenChange={setIsFilesOpen}>
