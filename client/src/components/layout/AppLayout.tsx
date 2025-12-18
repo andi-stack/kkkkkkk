@@ -155,8 +155,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 bg-background relative">
         {/* Top Bar */}
-        <header className="h-16 border-b border-border flex items-center px-6 justify-between bg-background/50 backdrop-blur-sm sticky top-0 z-10">
-          <div className="flex-1 max-w-xs relative group">
+        <header className="h-16 border-b border-border flex items-center px-6 justify-center bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="w-full max-w-md relative group">
             <AdvancedSearch />
             <Input 
               type="search" 
@@ -166,7 +166,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             />
           </div>
 
-          <div className="flex items-center gap-4 ml-4">
+          <div className="flex items-center gap-4 ml-auto">
             {isVaultUnlocked && (
               <TooltipProvider>
                 <Tooltip>
