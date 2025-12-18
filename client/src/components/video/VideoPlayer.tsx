@@ -252,7 +252,7 @@ export function VideoPlayer({
     }
   }, []);
 
-  // Handle seek bar drag and drop
+  // Handle seek bar drag and drop - set up permanent document listeners
   useEffect(() => {
     const seekTo = (clientX: number) => {
       if (!progressRef.current || !videoRef.current) return;
@@ -264,24 +264,23 @@ export function VideoPlayer({
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      seekTo(e.clientX);
+      if (isDraggingRef.current) {
+        e.preventDefault();
+        seekTo(e.clientX);
+      }
     };
 
     const handleMouseUp = () => {
       isDraggingRef.current = false;
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
     };
 
-    if (isDraggingRef.current) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }
+    document.addEventListener("mousemove", handleMouseMove, true);
+    document.addEventListener("mouseup", handleMouseUp, true);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove, true);
+      document.removeEventListener("mouseup", handleMouseUp, true);
+    };
   }, [duration]);
 
   // Keyboard shortcuts - must come after callback definitions
@@ -349,9 +348,9 @@ export function VideoPlayer({
 
   const handleProgressMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressRef.current || !videoRef.current) return;
+    e.preventDefault();
     isDraggingRef.current = true;
     
-    if (!progressRef.current || !videoRef.current) return;
     const rect = progressRef.current.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     videoRef.current.currentTime = Math.max(0, Math.min(duration, percent * duration));
