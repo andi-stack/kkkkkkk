@@ -41,13 +41,15 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   useEffect(() => {
     const settings = getSettings();
-    setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, settings.appBackgroundImage, settings.appBackgroundVideo));
+    // Only apply app background style, NOT image/video which should be in modals only
+    setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, '', ''));
   }, []);
 
   useEffect(() => {
     const handleSettingsChange = () => {
       const settings = getSettings();
-      setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, settings.appBackgroundImage, settings.appBackgroundVideo));
+      // Only apply app background style, NOT image/video which should be in modals only
+      setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, '', ''));
     };
     window.addEventListener("settingsChanged", handleSettingsChange);
     return () => window.removeEventListener("settingsChanged", handleSettingsChange);
@@ -70,18 +72,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
       style={backgroundStyle}
     >
-      {/* Background Video */}
-      {settings.appBackgroundVideo && (
-        <video
-          autoPlay
-          muted
-          loop
-          className="fixed inset-0 w-full h-full object-cover -z-10"
-          style={{ pointerEvents: 'none' }}
-        >
-          <source src={settings.appBackgroundVideo} type="video/mp4" />
-        </video>
-      )}
 
       {/* Panic Mode Overlay */}
       {isPanicMode && (

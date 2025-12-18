@@ -311,7 +311,34 @@ export function VideoPlayer({
     if (!progressRef.current || !videoRef.current) return;
     const rect = progressRef.current.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    videoRef.current.currentTime = percent * duration;
+    videoRef.current.currentTime = Math.max(0, Math.min(duration, percent * duration));
+  };
+
+  const handleProgressMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressRef.current || !videoRef.current) return;
+    e.preventDefault();
+    const seekTo = (clientX: number) => {
+      if (!progressRef.current || !videoRef.current) return;
+      const rect = progressRef.current.getBoundingClientRect();
+      const percent = (clientX - rect.left) / rect.width;
+      const newTime = Math.max(0, Math.min(duration, percent * duration));
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    };
+    
+    seekTo(e.clientX);
+    
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      seekTo(moveEvent.clientX);
+    };
+    
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+    
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -646,9 +673,10 @@ export function VideoPlayer({
             <div
               ref={progressRef}
               onClick={(e) => { e.stopPropagation(); handleProgressClick(e); resetControlsTimeout(); }}
+              onMouseDown={(e) => { e.stopPropagation(); handleProgressMouseDown(e); resetControlsTimeout(); }}
               onMouseMove={(e) => { handleProgressMouseMove(e); resetControlsTimeout(); }}
               onMouseLeave={() => { setShowThumbnail(false); setPreviewFrame(null); }}
-              className="relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all"
+              className="relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all select-none"
             >
               <div
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all"
