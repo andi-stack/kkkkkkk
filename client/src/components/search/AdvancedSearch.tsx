@@ -80,7 +80,7 @@ export function AdvancedSearch() {
     <div ref={containerRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 p-0 text-muted-foreground hover:text-cyan-400 transition-colors z-50 flex items-center justify-center"
+        className="p-2 text-muted-foreground hover:text-cyan-400 transition-colors z-50 flex items-center justify-center rounded hover:bg-secondary/50"
         title="Advanced Search Filters"
         data-testid="button-advanced-search"
       >
