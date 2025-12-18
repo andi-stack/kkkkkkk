@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MediaItem } from "@/lib/mockData";
-import { Play, Download, Trash2, File, Clock, HardDrive, Hash, ChevronRight, Tag, Folder, X, Edit2, RotateCcw, FolderOpen, Users, Film, Image as ImageIcon } from "lucide-react";
+import { Play, Download, Trash2, File, Clock, HardDrive, Hash, ChevronRight, Tag, Folder, X, Edit2, RotateCcw, FolderOpen, Users, Film, Image as ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,8 @@ export function DetailModal({ item, isOpen, onClose }: DetailModalProps) {
   const [description, setDescription] = useState("");
   const [watchProgress, setWatchProgress] = useState(0);
   const [isFilesOpen, setIsFilesOpen] = useState(false);
+  const [cardBackgroundImage, setCardBackgroundImage] = useState("");
+  const [cardBackgroundVideo, setCardBackgroundVideo] = useState("");
 
   useEffect(() => {
     const settings = getSettings();
@@ -282,6 +284,58 @@ export function DetailModal({ item, isOpen, onClose }: DetailModalProps) {
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
               </>
             )}
+
+            {/* Background Customization */}
+            <div className="px-6 py-4 border-b border-border/30 space-y-3">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                <ImageIcon className="w-3.5 h-3.5 text-purple-400" /> Card Background
+              </h3>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Image URL or upload"
+                  value={cardBackgroundImage}
+                  onChange={(e) => setCardBackgroundImage(e.target.value)}
+                  className="bg-secondary/50 border-border/50 text-xs"
+                />
+                {cardBackgroundImage && (
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 flex-1 rounded border border-border/50 overflow-hidden">
+                      <img src={cardBackgroundImage} alt="preview" className="w-full h-full object-cover" />
+                    </div>
+                    <button
+                      onClick={() => setCardBackgroundImage('')}
+                      className="p-1 rounded hover:bg-secondary/50 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Video URL"
+                  value={cardBackgroundVideo}
+                  onChange={(e) => setCardBackgroundVideo(e.target.value)}
+                  className="bg-secondary/50 border-border/50 text-xs"
+                />
+                {cardBackgroundVideo && (
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 flex-1 rounded border border-border/50 overflow-hidden bg-black/20">
+                      <video src={cardBackgroundVideo} className="w-full h-full object-cover" preload="metadata" />
+                    </div>
+                    <button
+                      onClick={() => setCardBackgroundVideo('')}
+                      className="p-1 rounded hover:bg-secondary/50 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Soft divider */}
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
 
             {/* Tags Management */}
             <div className="px-6 py-4 border-b border-border/30 space-y-3">

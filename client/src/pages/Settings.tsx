@@ -21,8 +21,10 @@ import { getSettings, saveSettings, AppSettings, handleImageUpload, handleVideoU
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<"profile" | "appearance" | "privacy" | "storage">("profile");
   const [settings, setSettings] = useState<AppSettings>(getSettings());
+  const [profilePicture, setProfilePicture] = useState<string>("");
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const profilePicInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveSettings = () => {
     saveSettings(settings);
@@ -53,25 +55,73 @@ export default function Settings() {
     }
   };
 
+  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+          alert('Invalid format. Please use JPG, PNG, WebP, or GIF.');
+          return;
+        }
+        const dataUrl = await handleImageUpload(file);
+        setProfilePicture(dataUrl);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Failed to upload profile picture');
+      }
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-medium">Profile Settings</h3>
-              <p className="text-sm text-muted-foreground">Manage your account information.</p>
+              <h3 className="text-lg font-medium">Account Profile</h3>
+              <p className="text-sm text-muted-foreground">Customize your profile information and avatar.</p>
             </div>
             <Separator />
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg" />
-                <div>
-                  <h4 className="font-medium">Profile Picture</h4>
-                  <p className="text-sm text-muted-foreground">Upload a new profile picture</p>
+                <div className={cn(
+                  "w-16 h-16 rounded-full shadow-lg flex-shrink-0",
+                  profilePicture 
+                    ? "bg-cover bg-center" 
+                    : "bg-gradient-to-br from-cyan-500 to-blue-600"
+                )}
+                style={profilePicture ? { backgroundImage: `url(${profilePicture})` } : {}}
+                />
+                <div className="flex-1">
+                  <h4 className="font-medium">Profile Avatar</h4>
+                  <p className="text-sm text-muted-foreground">Upload JPG, PNG, WebP, or GIF (max 5MB)</p>
                 </div>
               </div>
-              <Button variant="outline">Change Profile Picture</Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => profilePicInputRef.current?.click()}
+                  variant="outline"
+                  className="gap-2 text-cyan-400 hover:text-cyan-300 border-cyan-500/30"
+                >
+                  <Upload className="w-4 h-4" /> Upload
+                </Button>
+                {profilePicture && (
+                  <Button
+                    onClick={() => setProfilePicture("")}
+                    variant="outline"
+                    className="gap-2 text-red-400 hover:text-red-300 border-red-500/30"
+                  >
+                    <X className="w-4 h-4" /> Clear
+                  </Button>
+                )}
+                <input
+                  ref={profilePicInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleProfilePicUpload}
+                  className="hidden"
+                />
+              </div>
             </div>
           </div>
         );
@@ -80,15 +130,15 @@ export default function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-medium">Appearance</h3>
-              <p className="text-sm text-muted-foreground">Customize the look and feel.</p>
+              <h3 className="text-lg font-medium">Appearance & Theming</h3>
+              <p className="text-sm text-muted-foreground">Customize colors, themes, and background styling.</p>
             </div>
             <Separator />
             <div className="space-y-8">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-base">Dark Mode</Label>
-                  <p className="text-sm text-muted-foreground">Use dark theme for reduced eye strain</p>
+                  <p className="text-sm text-muted-foreground">Enable dark theme for comfortable viewing</p>
                 </div>
                 <Switch 
                   checked={settings.darkMode}
@@ -98,8 +148,8 @@ export default function Settings() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Accent Color</Label>
-                  <p className="text-sm text-muted-foreground">Choose your preferred accent color</p>
+                  <Label className="text-base">Primary Accent Color</Label>
+                  <p className="text-sm text-muted-foreground">Select your preferred UI accent color</p>
                 </div>
                 <div className="flex gap-3">
                   <button
@@ -119,8 +169,8 @@ export default function Settings() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Detail Modal Background</Label>
-                  <p className="text-sm text-muted-foreground">Choose background for media detail view</p>
+                  <Label className="text-base">Media Detail View Background</Label>
+                  <p className="text-sm text-muted-foreground">Background style for media cards and details</p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -157,8 +207,8 @@ export default function Settings() {
 
               <div className="space-y-4">
                 <div className="space-y-0.5">
-                  <Label className="text-base">App Background</Label>
-                  <p className="text-sm text-muted-foreground">Customize the main application background</p>
+                  <Label className="text-base">Main Application Background</Label>
+                  <p className="text-sm text-muted-foreground">Choose the base theme for the entire app</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -204,7 +254,7 @@ export default function Settings() {
               <div className="space-y-4">
                 <div className="space-y-0.5">
                   <Label className="text-base">Background Image</Label>
-                  <p className="text-sm text-muted-foreground">Upload from your computer or paste a URL</p>
+                  <p className="text-sm text-muted-foreground">Custom image overlay for main app background</p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex gap-2">
