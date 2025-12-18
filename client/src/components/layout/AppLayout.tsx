@@ -41,15 +41,13 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   useEffect(() => {
     const settings = getSettings();
-    // Only apply app background style, NOT image/video which should be in modals only
-    setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, '', ''));
+    setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, settings.appBackgroundImage, settings.appBackgroundVideo));
   }, []);
 
   useEffect(() => {
     const handleSettingsChange = () => {
       const settings = getSettings();
-      // Only apply app background style, NOT image/video which should be in modals only
-      setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, '', ''));
+      setBackgroundStyle(getAppBackgroundStyle(settings.appBackground, settings.appBackgroundImage, settings.appBackgroundVideo));
     };
     window.addEventListener("settingsChanged", handleSettingsChange);
     return () => window.removeEventListener("settingsChanged", handleSettingsChange);
@@ -72,6 +70,18 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
       style={backgroundStyle}
     >
+      {/* Background Video */}
+      {settings.appBackgroundVideo && (
+        <video
+          autoPlay
+          muted
+          loop
+          className="fixed inset-0 w-full h-full object-cover -z-10"
+          style={{ pointerEvents: 'none' }}
+        >
+          <source src={settings.appBackgroundVideo} type="video/mp4" />
+        </video>
+      )}
 
       {/* Panic Mode Overlay */}
       {isPanicMode && (
@@ -146,20 +156,17 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main className="flex-1 flex flex-col min-w-0 bg-background relative">
         {/* Top Bar */}
         <header className="h-16 border-b border-border flex items-center px-6 justify-between bg-background/50 backdrop-blur-sm sticky top-0 z-10">
-          <div />
+          <div className="flex-1 max-w-xs relative group">
+            <AdvancedSearch />
+            <Input 
+              type="search" 
+              placeholder="Search library... (Ctrl+F)" 
+              className="pl-3 pr-10 pt-[3px] pb-[3px] bg-secondary/50 border-transparent focus:border-cyan-500/50 focus:bg-secondary transition-all w-full focus:ring-cyan-500/20"
+              data-testid="input-search"
+            />
+          </div>
 
-          <div className="flex items-center gap-3 flex-1 justify-end">
-            {/* Search Bar */}
-            <div className="max-w-sm flex-1 relative group hidden sm:block">
-              <AdvancedSearch />
-              <Input 
-                type="search" 
-                placeholder="Search library... (Ctrl+F)" 
-                className="pl-3 pr-10 pt-[3px] pb-[3px] bg-secondary/50 border-transparent focus:border-cyan-500/50 focus:bg-secondary transition-all w-full focus:ring-cyan-500/20 text-sm"
-                data-testid="input-search"
-              />
-            </div>
-
+          <div className="flex items-center gap-4 ml-4">
             {isVaultUnlocked && (
               <TooltipProvider>
                 <Tooltip>

@@ -77,10 +77,10 @@ export function AdvancedSearch() {
   const hasActiveFilters = Object.values(filters).some((arr) => arr.length > 0);
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-cyan-400 transition-colors z-40 flex items-center justify-center"
+        className="absolute right-3 top-1/2 -translate-y-1/2 p-0 text-muted-foreground hover:text-cyan-400 transition-colors z-50 flex items-center justify-center"
         title="Advanced Search Filters"
         data-testid="button-advanced-search"
       >
@@ -88,7 +88,7 @@ export function AdvancedSearch() {
       </button>
 
       {isOpen && (
-        <div className="fixed top-20 right-4 w-80 max-w-[calc(100vw-2rem)] bg-card border border-border/50 rounded-lg p-4 shadow-lg z-50 space-y-3 max-h-96 overflow-y-auto">
+        <div className="absolute right-0 top-full mt-2 w-96 bg-card border border-border/50 rounded-lg p-4 shadow-lg z-50 space-y-3">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm">Advanced Search</h3>
             <button

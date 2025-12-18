@@ -57,7 +57,6 @@ export function VideoPlayer({
   const progressRef = useRef<HTMLDivElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isDraggingRef = useRef(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -252,37 +251,6 @@ export function VideoPlayer({
     }
   }, []);
 
-  // Handle seek bar drag and drop - set up permanent document listeners
-  useEffect(() => {
-    const seekTo = (clientX: number) => {
-      if (!progressRef.current || !videoRef.current) return;
-      const rect = progressRef.current.getBoundingClientRect();
-      const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      const newTime = percent * duration;
-      videoRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDraggingRef.current) {
-        e.preventDefault();
-        seekTo(e.clientX);
-      }
-    };
-
-    const handleMouseUp = () => {
-      isDraggingRef.current = false;
-    };
-
-    document.addEventListener("mousemove", handleMouseMove, true);
-    document.addEventListener("mouseup", handleMouseUp, true);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove, true);
-      document.removeEventListener("mouseup", handleMouseUp, true);
-    };
-  }, [duration]);
-
   // Keyboard shortcuts - must come after callback definitions
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -343,17 +311,7 @@ export function VideoPlayer({
     if (!progressRef.current || !videoRef.current) return;
     const rect = progressRef.current.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    videoRef.current.currentTime = Math.max(0, Math.min(duration, percent * duration));
-  };
-
-  const handleProgressMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressRef.current || !videoRef.current) return;
-    e.preventDefault();
-    isDraggingRef.current = true;
-    
-    const rect = progressRef.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    videoRef.current.currentTime = Math.max(0, Math.min(duration, percent * duration));
+    videoRef.current.currentTime = percent * duration;
   };
 
   const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -688,10 +646,9 @@ export function VideoPlayer({
             <div
               ref={progressRef}
               onClick={(e) => { e.stopPropagation(); handleProgressClick(e); resetControlsTimeout(); }}
-              onMouseDown={(e) => { e.stopPropagation(); handleProgressMouseDown(e); resetControlsTimeout(); }}
               onMouseMove={(e) => { handleProgressMouseMove(e); resetControlsTimeout(); }}
               onMouseLeave={() => { setShowThumbnail(false); setPreviewFrame(null); }}
-              className="relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all select-none"
+              className="relative h-1.5 bg-white/30 rounded-full cursor-pointer group/progress hover:h-3 transition-all"
             >
               <div
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all"
