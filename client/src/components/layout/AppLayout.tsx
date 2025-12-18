@@ -146,17 +146,20 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main className="flex-1 flex flex-col min-w-0 bg-background relative">
         {/* Top Bar */}
         <header className="h-16 border-b border-border flex items-center px-6 justify-between bg-background/50 backdrop-blur-sm sticky top-0 z-10">
-          <div className="flex-1 max-w-xs relative group">
-            <AdvancedSearch />
-            <Input 
-              type="search" 
-              placeholder="Search library... (Ctrl+F)" 
-              className="pl-3 pr-10 pt-[3px] pb-[3px] bg-secondary/50 border-transparent focus:border-cyan-500/50 focus:bg-secondary transition-all w-full focus:ring-cyan-500/20"
-              data-testid="input-search"
-            />
-          </div>
+          <div />
 
-          <div className="flex items-center gap-4 ml-4">
+          <div className="flex items-center gap-3 flex-1 justify-end">
+            {/* Search Bar */}
+            <div className="max-w-sm flex-1 relative group hidden sm:block">
+              <AdvancedSearch />
+              <Input 
+                type="search" 
+                placeholder="Search library... (Ctrl+F)" 
+                className="pl-3 pr-10 pt-[3px] pb-[3px] bg-secondary/50 border-transparent focus:border-cyan-500/50 focus:bg-secondary transition-all w-full focus:ring-cyan-500/20 text-sm"
+                data-testid="input-search"
+              />
+            </div>
+
             {isVaultUnlocked && (
               <TooltipProvider>
                 <Tooltip>
