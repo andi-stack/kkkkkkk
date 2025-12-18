@@ -500,7 +500,7 @@ export default function Settings() {
           </nav>
 
           {/* Settings Content */}
-          <div className="md:col-span-4 space-y-6 bg-gradient-to-br from-card to-secondary/20 p-8 rounded-xl border border-border/50 shadow-lg">
+          <div className="md:col-span-4 space-y-6 bg-gradient-to-br from-card to-secondary/20 p-8 rounded-xl border border-border/50 shadow-lg overflow-y-auto max-h-[calc(100vh-200px)]">
             {renderContent()}
           </div>
         </div>
